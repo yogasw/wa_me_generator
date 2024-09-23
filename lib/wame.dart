@@ -26,10 +26,28 @@ class WaMeGeneratorScreen extends StatefulWidget {
 }
 
 class _WaMeGeneratorScreenState extends State<WaMeGeneratorScreen> {
-  final _phoneNumberController = TextEditingController();
+  final _phoneNumberController = TextEditingController(
+    text: '62'
+  );
   final _textMessageController = TextEditingController();
 
   String _waMeLink = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _phoneNumberController.addListener(_generateWaMeLink);
+    _textMessageController.addListener(_generateWaMeLink);
+  }
+
+  @override
+  void dispose() {
+    _phoneNumberController.removeListener(_generateWaMeLink);
+    _textMessageController.removeListener(_generateWaMeLink);
+    _phoneNumberController.dispose();
+    _textMessageController.dispose();
+    super.dispose();
+  }
 
   void _generateWaMeLink() {
     final phoneNumber = _phoneNumberController.text
@@ -53,6 +71,7 @@ class _WaMeGeneratorScreenState extends State<WaMeGeneratorScreen> {
   }
 
   void _launchWaMeLink() async {
+    _generateWaMeLink();
     final Uri waMeUri = Uri.parse(_waMeLink);
     if (await canLaunchUrl(waMeUri)) {
       await launchUrl(waMeUri);
@@ -64,6 +83,7 @@ class _WaMeGeneratorScreenState extends State<WaMeGeneratorScreen> {
   }
 
   void _copyWaMeLink() {
+    _generateWaMeLink();
     Clipboard.setData(ClipboardData(text: _waMeLink));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Link copied to clipboard')),
@@ -101,30 +121,20 @@ class _WaMeGeneratorScreenState extends State<WaMeGeneratorScreen> {
               maxLines: null,
             ),
             SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _generateWaMeLink,
-              child: Text('Generate Link'),
+            SelectableText(
+              _waMeLink,
+              style: TextStyle(color: Colors.blue),
             ),
-            SizedBox(height: 16),
-            if (_waMeLink.isNotEmpty)
-              Column(
-                children: [
-                  SelectableText(
-                    _waMeLink,
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                  SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: _launchWaMeLink,
-                    child: Text('Open in WhatsApp'),
-                  ),
-                  SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: _copyWaMeLink,
-                    child: Text('Copy to Clipboard'),
-                  ),
-                ],
-              ),
+            SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _launchWaMeLink,
+              child: Text('Open in WhatsApp'),
+            ),
+            SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _copyWaMeLink,
+              child: Text('Copy to Clipboard'),
+            ),
           ],
         ),
       ),
