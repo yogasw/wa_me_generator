@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import Clipboard class
 import 'package:url_launcher/url_launcher.dart';
 
 class WaMeGeneratorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WA Me Link Generator',
+      title: 'WA.me Generator',
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
@@ -47,8 +48,9 @@ class _WaMeGeneratorScreenState extends State<WaMeGeneratorScreen> {
   }
 
   void _launchWaMeLink() async {
-    if (await canLaunch(_waMeLink)) {
-      await launch(_waMeLink);
+    final Uri waMeUri = Uri.parse(_waMeLink);
+    if (await canLaunchUrl(waMeUri)) {
+      await launchUrl(waMeUri);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Could not launch $_waMeLink')),
@@ -56,11 +58,18 @@ class _WaMeGeneratorScreenState extends State<WaMeGeneratorScreen> {
     }
   }
 
+  void _copyWaMeLink() {
+    Clipboard.setData(ClipboardData(text: _waMeLink));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Link copied to clipboard')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('WA Me Link Generator'),
+        title: Text('WA.me Generator'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -103,6 +112,11 @@ class _WaMeGeneratorScreenState extends State<WaMeGeneratorScreen> {
                   ElevatedButton(
                     onPressed: _launchWaMeLink,
                     child: Text('Open in WhatsApp'),
+                  ),
+                  SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: _copyWaMeLink,
+                    child: Text('Copy to Clipboard'),
                   ),
                 ],
               ),
