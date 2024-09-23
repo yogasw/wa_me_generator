@@ -10,6 +10,11 @@ class WaMeGeneratorApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.green,
+      ),
+      themeMode: ThemeMode.system, // Use system theme mode (light/dark)
       home: WaMeGeneratorScreen(),
     );
   }
